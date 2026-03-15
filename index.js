@@ -31,9 +31,9 @@ let enemiesPerSpawn=1
 let spawnRate=1200
 
 const enemyImages=[
-"images/enemy_car1.png",
-"images/enemy_car2.png",
-"images/truck.png"
+"enemy_car1.png",
+"enemy_car2.png",
+"truck.png"
 ]
 
 /* CALCULATE LANES */
