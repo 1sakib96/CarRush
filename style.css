@@ -78,7 +78,7 @@ position:absolute;
 width:10vw;
 max-width:40px;
 aspect-ratio:1/1;
-background-image:url("images/coin2.png");
+background-image:url("coin2.png");
 background-size:contain;
 background-repeat:no-repeat;
 z-index:5;
