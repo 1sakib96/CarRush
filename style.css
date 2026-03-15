@@ -1,0 +1,160 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#111;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+font-family:Arial;
+}
+
+#game{
+width:100vw;
+max-width:420px;
+height:100dvh;
+position:relative;
+overflow:hidden;
+}
+
+/* ROAD */
+
+#road{
+position:absolute;
+width:100%;
+height:200%;
+background-image:url("images/road img.jpg");
+background-size:100% auto;
+background-repeat:repeat-y;
+animation:roadMove 0.6s linear infinite;
+z-index:1;
+}
+
+@keyframes roadMove{
+0%{transform:translateY(-50%)}
+100%{transform:translateY(0)}
+}
+
+/* PLAYER */
+
+#player{
+position:absolute;
+width:16vw;
+min-width:50px;
+max-width:70px;
+aspect-ratio:65/85;
+bottom:70px;
+background-image:url("images/truck 2nd.png");
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
+z-index:10;
+transition:left .15s;
+}
+
+/* ENEMY */
+
+.enemy{
+position:absolute;
+width:16vw;
+min-width:50px;
+max-width:70px;
+aspect-ratio:65/85;
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
+z-index:5;
+}
+
+/* COIN */
+
+.coin{
+position:absolute;
+width:10vw;
+max-width:40px;
+aspect-ratio:1/1;
+background-image:url("images/coin2.png");
+background-size:contain;
+background-repeat:no-repeat;
+z-index:5;
+}
+
+/* SCORE */
+
+#scoreBoard{
+position:absolute;
+top:10px;
+left:10px;
+color:white;
+font-size:18px;
+z-index:20;
+}
+
+/* GAME OVER */
+
+#gameOver{
+position:absolute;
+top:40%;
+width:100%;
+text-align:center;
+color:white;
+font-size:32px;
+display:none;
+z-index:30;
+}
+
+/* START SCREEN */
+
+#startScreen{
+position:absolute;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.85);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+color:white;
+z-index:40;
+}
+
+#startScreen h2{
+margin-bottom:20px;
+font-size:28px;
+}
+
+#startBtn{
+padding:12px 25px;
+font-size:22px;
+background:#28a745;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+/* CONTROLS */
+
+.controls{
+position:absolute;
+bottom:10px;
+width:100%;
+display:flex;
+justify-content:space-around;
+z-index:20;
+}
+
+button{
+padding:10px 15px;
+font-size:20px;
+border:none;
+border-radius:6px;
+background:dimgrey;
+color:white;
+cursor:pointer;
+}
