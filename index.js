@@ -1,283 +1,219 @@
-const game = document.getElementById("game")
-const player = document.getElementById("player")
+document.addEventListener("DOMContentLoaded", () => {
 
-const scoreEl = document.getElementById("score")
-const coinEl = document.getElementById("coins")
-const gameOverText = document.getElementById("gameOver")
+  const game = document.getElementById("game")
+  const player = document.getElementById("player")
 
-const leftBtn = document.getElementById("leftBtn")
-const rightBtn = document.getElementById("rightBtn")
-const resetBtn = document.getElementById("resetBtn")
+  const scoreEl = document.getElementById("score")
+  const coinEl = document.getElementById("coins")
+  const gameOverText = document.getElementById("gameOver")
 
-const startScreen = document.getElementById("startScreen")
-const startBtn = document.getElementById("startBtn")
+  const leftBtn = document.getElementById("leftBtn")
+  const rightBtn = document.getElementById("rightBtn")
+  const resetBtn = document.getElementById("resetBtn")
 
-let lanes=[]
-let lane=1
+  const startScreen = document.getElementById("startScreen")
+  const startBtn = document.getElementById("startBtn")
 
-let enemies=[]
-let coins=[]
+  let lanes = []
+  let lane = 1
 
-let speed=5
-let score=0
-let coinScore=0
-let running=false
+  let enemies = []
+  let coins = []
 
-let enemyTimer
-let coinTimer
-let difficultyTimer
+  let speed = 5
+  let score = 0
+  let coinScore = 0
+  let running = false
 
-let enemiesPerSpawn=1
-let spawnRate=1200
+  let enemyTimer
+  let coinTimer
+  let difficultyTimer
 
-const enemyImages=[
-"enemy_car1.png",
-"enemy_car2.png",
-"truck.png"
-]
+  let enemiesPerSpawn = 1
+  let spawnRate = 1200
 
-/* CALCULATE LANES */
+  // Enemy car images – replace with your own images if needed
+  const enemyImages = [
+    "enemy_car1.png",
+    "enemy_car2.png",
+    "truck.png"
+  ]
 
-function calculateLanes(){
+  /* CALCULATE LANES */
+  function calculateLanes() {
+    const gameWidth = game.offsetWidth
+    const laneWidth = gameWidth / 4
+    lanes = []
+    for (let i = 0; i < 4; i++) {
+      lanes.push(i * laneWidth + laneWidth / 2 - player.offsetWidth / 2)
+    }
+    player.style.left = lanes[lane] + "px"
+  }
 
-const gameWidth=game.offsetWidth
-const laneWidth=gameWidth/4
+  window.addEventListener("resize", calculateLanes)
+  calculateLanes()
 
-lanes=[]
+  /* SPAWN ENEMY */
+  function spawnEnemy() {
+    if (!running) return
+    const safeLane = Math.floor(Math.random() * 4)
+    for (let i = 0; i < Math.floor(enemiesPerSpawn); i++) {
+      let laneIndex
+      do {
+        laneIndex = Math.floor(Math.random() * 4)
+      } while (laneIndex === safeLane)
 
-for(let i=0;i<4;i++){
-lanes.push(i*laneWidth+laneWidth/2-player.offsetWidth/2)
-}
+      const enemy = document.createElement("div")
+      enemy.classList.add("enemy")
+      enemy.style.left = lanes[laneIndex] + "px"
+      enemy.style.top = "-120px"
 
-player.style.left=lanes[lane]+"px"
+      const img = enemyImages[Math.floor(Math.random() * enemyImages.length)]
+      enemy.style.backgroundImage = `url(${img})`
+      enemy.style.backgroundSize = "cover"
+      enemy.style.backgroundRepeat = "no-repeat"
 
-}
+      game.appendChild(enemy)
+      enemies.push(enemy)
+    }
+  }
 
-window.addEventListener("resize",calculateLanes)
-calculateLanes()
+  /* SPAWN COIN */
+  function spawnCoin() {
+    if (!running) return
+    const coin = document.createElement("div")
+    coin.classList.add("coin")
 
-/* SPAWN ENEMY WITH SAFE LANE */
+    const laneIndex = Math.floor(Math.random() * 4)
+    coin.style.left = lanes[laneIndex] + "px"
+    coin.style.top = "-60px"
+    coin.style.backgroundImage = `url('images/coin.png')`
+    coin.style.backgroundSize = "cover"
+    coin.style.backgroundRepeat = "no-repeat"
 
-function spawnEnemy(){
+    game.appendChild(coin)
+    coins.push(coin)
+  }
 
-if(!running) return
+  /* COLLISION DETECTION */
+  function collide(a, b) {
+    const r1 = a.getBoundingClientRect()
+    const r2 = b.getBoundingClientRect()
+    return !(
+      r1.top > r2.bottom ||
+      r1.bottom < r2.top ||
+      r1.left > r2.right ||
+      r1.right < r2.left
+    )
+  }
 
-const safeLane=Math.floor(Math.random()*4)
+  /* GAME LOOP */
+  function gameLoop() {
+    if (!running) return
 
-for(let i=0;i<Math.floor(enemiesPerSpawn);i++){
+    enemies.forEach((enemy, i) => {
+      enemy.style.top = enemy.offsetTop + speed + "px"
+      if (enemy.offsetTop > window.innerHeight) {
+        enemy.remove()
+        enemies.splice(i, 1)
+      }
+      if (collide(player, enemy)) crash()
+    })
 
-let laneIndex
+    coins.forEach((coin, i) => {
+      coin.style.top = coin.offsetTop + speed + "px"
+      if (coin.offsetTop > window.innerHeight) {
+        coin.remove()
+        coins.splice(i, 1)
+      }
+      if (collide(player, coin)) {
+        coin.remove()
+        coins.splice(i, 1)
+        coinScore++
+        coinEl.innerText = coinScore
+      }
+    })
 
-do{
-laneIndex=Math.floor(Math.random()*4)
-}
-while(laneIndex===safeLane)
+    score++
+    scoreEl.innerText = score
 
-const enemy=document.createElement("div")
-enemy.classList.add("enemy")
+    requestAnimationFrame(gameLoop)
+  }
 
-enemy.style.left=lanes[laneIndex]+"px"
-enemy.style.top="-120px"
+  /* CRASH */
+  function crash() {
+    running = false
+    gameOverText.style.display = "block"
+  }
 
-const img=enemyImages[Math.floor(Math.random()*enemyImages.length)]
-enemy.style.backgroundImage=`url(${img})`
+  /* PLAYER MOVEMENT */
+  function moveLeft() {
+    if (!running) return
+    lane--
+    if (lane < 0) lane = 0
+    player.style.left = lanes[lane] + "px"
+  }
 
-game.appendChild(enemy)
+  function moveRight() {
+    if (!running) return
+    lane++
+    if (lane > 3) lane = 3
+    player.style.left = lanes[lane] + "px"
+  }
 
-enemies.push(enemy)
+  /* CONTROLS */
+  leftBtn.onclick = moveLeft
+  rightBtn.onclick = moveRight
+  resetBtn.onclick = resetGame
 
-}
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" || e.key === "a") moveLeft()
+    if (e.key === "ArrowRight" || e.key === "d") moveRight()
+    if (e.key === "r") resetGame()
+  })
 
-}
+  /* INCREASE DIFFICULTY */
+  function increaseDifficulty() {
+    if (enemiesPerSpawn < 3) enemiesPerSpawn += 0.5
+    speed += 0.2
+  }
 
-/* SPAWN COIN */
+  /* START GAME */
+  function startGame() {
+    startScreen.style.display = "none"
+    running = true
+    enemyTimer = setInterval(spawnEnemy, spawnRate)
+    coinTimer = setInterval(spawnCoin, 2000)
+    difficultyTimer = setInterval(increaseDifficulty, 10000)
+    requestAnimationFrame(gameLoop)
+  }
 
-function spawnCoin(){
+  startBtn.onclick = startGame
 
-if(!running) return
+  /* RESET GAME */
+  function resetGame() {
+    clearInterval(enemyTimer)
+    clearInterval(coinTimer)
+    clearInterval(difficultyTimer)
 
-const coin=document.createElement("div")
-coin.classList.add("coin")
+    enemies.forEach(e => e.remove())
+    coins.forEach(c => c.remove())
 
-const laneIndex=Math.floor(Math.random()*4)
+    enemies = []
+    coins = []
+    score = 0
+    coinScore = 0
+    speed = 5
+    enemiesPerSpawn = 1
+    lane = 1
 
-coin.style.left=lanes[laneIndex]+"px"
-coin.style.top="-60px"
+    scoreEl.innerText = 0
+    coinEl.innerText = 0
+    player.style.left = lanes[lane] + "px"
 
-game.appendChild(coin)
-
-coins.push(coin)
-
-}
-
-/* COLLISION */
-
-function collide(a,b){
-
-const r1=a.getBoundingClientRect()
-const r2=b.getBoundingClientRect()
-
-return !(
-
-r1.top>r2.bottom ||
-r1.bottom<r2.top ||
-r1.left>r2.right ||
-r1.right<r2.left
-
-)
-
-}
-
-/* GAME LOOP */
-
-function gameLoop(){
-
-if(!running) return
-
-enemies.forEach((enemy,i)=>{
-
-enemy.style.top=enemy.offsetTop+speed+"px"
-
-if(enemy.offsetTop>window.innerHeight){
-enemy.remove()
-enemies.splice(i,1)
-}
-
-if(collide(player,enemy)) crash()
+    gameOverText.style.display = "none"
+    running = false
+    startScreen.style.display = "flex"
+  }
 
 })
-
-coins.forEach((coin,i)=>{
-
-coin.style.top=coin.offsetTop+speed+"px"
-
-if(coin.offsetTop>window.innerHeight){
-coin.remove()
-coins.splice(i,1)
-}
-
-if(collide(player,coin)){
-coin.remove()
-coins.splice(i,1)
-coinScore++
-coinEl.innerText=coinScore
-}
-
-})
-
-score++
-scoreEl.innerText=score
-
-requestAnimationFrame(gameLoop)
-
-}
-
-/* CRASH */
-
-function crash(){
-
-running=false
-gameOverText.style.display="block"
-
-}
-
-/* MOVEMENT */
-
-function moveLeft(){
-
-if(!running) return
-
-lane--
-if(lane<0) lane=0
-
-player.style.left=lanes[lane]+"px"
-
-}
-
-function moveRight(){
-
-if(!running) return
-
-lane++
-if(lane>3) lane=3
-
-player.style.left=lanes[lane]+"px"
-
-}
-
-/* CONTROLS */
-
-leftBtn.onclick=moveLeft
-rightBtn.onclick=moveRight
-resetBtn.onclick=resetGame
-
-document.addEventListener("keydown",e=>{
-
-if(e.key==="ArrowLeft"||e.key==="a") moveLeft()
-if(e.key==="ArrowRight"||e.key==="d") moveRight()
-if(e.key==="r") resetGame()
-
-})
-
-/* DIFFICULTY */
-
-function increaseDifficulty(){
-
-if(enemiesPerSpawn<3){
-enemiesPerSpawn+=0.5
-}
-
-speed+=0.2
-
-}
-
-/* START GAME */
-
-function startGame(){
-
-startScreen.style.display="none"
-
-running=true
-
-enemyTimer=setInterval(spawnEnemy,spawnRate)
-coinTimer=setInterval(spawnCoin,2000)
-difficultyTimer=setInterval(increaseDifficulty,10000)
-
-requestAnimationFrame(gameLoop)
-
-}
-
-startBtn.onclick=startGame
-
-/* RESET GAME */
-
-function resetGame(){
-
-clearInterval(enemyTimer)
-clearInterval(coinTimer)
-clearInterval(difficultyTimer)
-
-enemies.forEach(e=>e.remove())
-coins.forEach(c=>c.remove())
-
-enemies=[]
-coins=[]
-
-score=0
-coinScore=0
-speed=5
-enemiesPerSpawn=1
-
-scoreEl.innerText=0
-coinEl.innerText=0
-
-lane=1
-player.style.left=lanes[lane]+"px"
-
-gameOverText.style.display="none"
-
-running=false
-
-startScreen.style.display="flex"
-
-}
