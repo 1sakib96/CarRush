@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const laneIndex = Math.floor(Math.random() * 4)
     coin.style.left = lanes[laneIndex] + "px"
     coin.style.top = "-60px"
-    coin.style.backgroundImage = `url('coin.png')`
+    coin.style.backgroundImage = `url('coin2.png')`
     coin.style.backgroundSize = "cover"
     coin.style.backgroundRepeat = "no-repeat"
 
